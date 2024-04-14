@@ -21,33 +21,6 @@ export const WifiSelection = () => Menu({
     icon: wifi.bind("icon_name"),
     title: "Wifi Selection",
     content: [
-        Widget.Box({
-            vertical: true,
-            setup: self => self.hook(wifi, () => self.children =
-                wifi.access_points.map(ap => Widget.Button({
-                    on_clicked: () => {
-                        if (dependencies("nmcli"))
-                            Utils.execAsync(`nmcli device wifi connect ${ap.bssid}`)
-                    },
-                    child: Widget.Box({
-                        children: [
-                            Widget.Icon(ap.iconName),
-                            Widget.Label(ap.ssid || ""),
-                            Widget.Icon({
-                                icon: icons.ui.tick,
-                                hexpand: true,
-                                hpack: "end",
-                                setup: self => Utils.idle(() => {
-                                    if (!self.is_destroyed)
-                                        self.visible = ap.active
-                                }),
-                            }),
-                        ],
-                    }),
-                })),
-            ),
-        }),
-        Widget.Separator(),
         Widget.Button({
             on_clicked: () => sh(options.quicksettings.networkSettings.value),
             child: Widget.Box({
@@ -56,6 +29,36 @@ export const WifiSelection = () => Menu({
                     Widget.Label("Network"),
                 ],
             }),
+        }),
+        Widget.Separator(),
+        Widget.Box({
+            vertical: true,
+            setup: self => self.hook(wifi, () => self.children =
+                wifi.access_points
+                    .filter((ap, index, self) =>
+                        index === self.findIndex(elem => (elem.ssid === ap.ssid)))
+                    .map(ap => Widget.Button({
+                        on_clicked: () => {
+                            if (dependencies("nmcli"))
+                                Utils.execAsync(`nmcli device wifi connect ${ap.bssid}`)
+                        },
+                        child: Widget.Box({
+                            children: [
+                                Widget.Icon(ap.iconName),
+                                Widget.Label(ap.ssid || ""),
+                                Widget.Icon({
+                                    icon: icons.ui.tick,
+                                    hexpand: true,
+                                    hpack: "end",
+                                    setup: self => Utils.idle(() => {
+                                        if (!self.is_destroyed)
+                                            self.visible = ap.active
+                                    }),
+                                }),
+                            ],
+                        }),
+                    })),
+            ),
         }),
     ],
 })
