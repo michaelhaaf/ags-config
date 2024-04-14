@@ -21,6 +21,16 @@ export const WifiSelection = () => Menu({
     icon: wifi.bind("icon_name"),
     title: "Wifi Selection",
     content: [
+        Widget.Button({
+            on_clicked: () => sh(options.quicksettings.networkSettings.value),
+            child: Widget.Box({
+                children: [
+                    Widget.Icon(icons.ui.settings),
+                    Widget.Label("Network"),
+                ],
+            }),
+        }),
+        Widget.Separator(),
         Widget.Box({
             vertical: true,
             setup: self => self.hook(wifi, () => self.children =
@@ -49,16 +59,6 @@ export const WifiSelection = () => Menu({
                         }),
                     })),
             ),
-        }),
-        Widget.Separator(),
-        Widget.Button({
-            on_clicked: () => sh(options.quicksettings.networkSettings.value),
-            child: Widget.Box({
-                children: [
-                    Widget.Icon(icons.ui.settings),
-                    Widget.Label("Network"),
-                ],
-            }),
         }),
     ],
 })
