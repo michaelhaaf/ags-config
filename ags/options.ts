@@ -1,3 +1,4 @@
+import { variants } from "@rose-pine/palette"
 import { opt, mkOptions } from "lib/option"
 import { distro } from "lib/variables"
 import { icon } from "lib/utils"
@@ -14,31 +15,31 @@ const options = mkOptions(OPTIONS, {
     theme: {
         dark: {
             primary: {
-                bg: opt("#51a4e7"),
-                fg: opt("#141414"),
+                bg: opt(`#${ variants.main.colors.rose.hex }`),
+                fg: opt(`#${ variants.main.colors.base.hex }`),
             },
             error: {
-                bg: opt("#e55f86"),
-                fg: opt("#141414"),
+                bg: opt(`#${ variants.main.colors.love.hex }`),
+                fg: opt(`#${ variants.main.colors.base.hex }`),
             },
-            bg: opt("#171717"),
-            fg: opt("#eeeeee"),
-            widget: opt("#eeeeee"),
-            border: opt("#eeeeee"),
+            bg: opt(`#${ variants.main.colors.base.hex }`),
+            fg: opt(`#${ variants.main.colors.text.hex }`),
+            widget: opt(`#${ variants.main.colors.text.hex }`),
+            border: opt(`#${ variants.main.colors.text.hex }`),
         },
         light: {
             primary: {
-                bg: opt("#426ede"),
-                fg: opt("#eeeeee"),
+                bg: opt(`#${ variants.dawn.colors.rose.hex }`),
+                fg: opt(`#${ variants.dawn.colors.base.hex }`),
             },
             error: {
-                bg: opt("#b13558"),
-                fg: opt("#eeeeee"),
+                bg: opt(`#${ variants.dawn.colors.love.hex }`),
+                fg: opt(`#${ variants.dawn.colors.base.hex }`),
             },
-            bg: opt("#fffffa"),
-            fg: opt("#080808"),
-            widget: opt("#080808"),
-            border: opt("#080808"),
+            bg: opt(`#${ variants.dawn.colors.base.hex }`),
+            fg: opt(`#${ variants.dawn.colors.text.hex }`),
+            widget: opt(`#${ variants.dawn.colors.text.hex }`),
+            border: opt(`#${ variants.dawn.colors.text.hex }`),
         },
 
         blur: opt(0),
@@ -59,7 +60,7 @@ const options = mkOptions(OPTIONS, {
 
     font: {
         size: opt(13),
-        name: opt("Ubuntu Nerd Font"),
+        name: opt("Fira Sans Condensed Regular"),
     },
 
     bar: {
@@ -101,12 +102,12 @@ const options = mkOptions(OPTIONS, {
             action: opt(() => App.toggleWindow("launcher")),
         },
         date: {
-            format: opt("%H:%M - %A %e."),
+            format: opt("%e %B - %H:%M"),
             action: opt(() => App.toggleWindow("datemenu")),
         },
         battery: {
             bar: opt<"hidden" | "regular" | "whole">("regular"),
-            charging: opt("#00D787"),
+            charging: opt(`#${ variants.main.colors.foam.hex }`),
             percentage: opt(true),
             blocks: opt(7),
             width: opt(50),
@@ -189,7 +190,7 @@ const options = mkOptions(OPTIONS, {
         },
         width: opt(380),
         position: opt<"left" | "center" | "right">("right"),
-        networkSettings: opt("gtk-launch gnome-control-center"),
+        networkSettings: opt("XDG_CURRENT_DESKTOP=gnome gnome-control-center"),
         media: {
             monochromeIcon: opt(true),
             coverSize: opt(100),

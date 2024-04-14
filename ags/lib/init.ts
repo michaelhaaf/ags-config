@@ -12,7 +12,6 @@ export default function init() {
         matugen()
         lowBattery()
         notifications()
-        hyprland()
     } catch (error) {
         logError(error)
     }
