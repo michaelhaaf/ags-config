@@ -12,6 +12,9 @@ export const substitutes = {
     "com.github.Aylur.ags": "controls-symbolic",
     "foot-symbolic": "terminal-symbolic",
     "terminal-distrobox-icon": "terminal",
+    "Brave-browser-symbolic": "brave-browser-symbolic",
+    "firefox-nightly": "firefox-developer-edition",
+    "firefox-nightly-symbolic": "firefox-developer-edition-symbolic",
 }
 
 export default {
