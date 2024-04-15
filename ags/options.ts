@@ -190,7 +190,7 @@ const options = mkOptions(OPTIONS, {
         },
         width: opt(380),
         position: opt<"left" | "center" | "right">("right"),
-        networkSettings: opt("XDG_CURRENT_DESKTOP=gnome gnome-control-center"),
+        networkSettings: opt("gnome-control-center"),
         media: {
             monochromeIcon: opt(true),
             coverSize: opt(100),
