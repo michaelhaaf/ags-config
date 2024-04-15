@@ -31,34 +31,38 @@ export const WifiSelection = () => Menu({
             }),
         }),
         Widget.Separator(),
-        Widget.Box({
-            vertical: true,
-            setup: self => self.hook(wifi, () => self.children =
-                wifi.access_points
-                    .filter((ap, index, self) =>
-                        index === self.findIndex(elem => (elem.ssid === ap.ssid)))
-                    .map(ap => Widget.Button({
-                        on_clicked: () => {
-                            if (dependencies("nmcli"))
-                                Utils.execAsync(`nmcli device wifi connect ${ap.bssid}`)
-                        },
-                        child: Widget.Box({
-                            children: [
-                                Widget.Icon(ap.iconName),
-                                Widget.Label(ap.ssid || ""),
-                                Widget.Icon({
-                                    icon: icons.ui.tick,
-                                    hexpand: true,
-                                    hpack: "end",
-                                    setup: self => Utils.idle(() => {
-                                        if (!self.is_destroyed)
-                                            self.visible = ap.active
+        Widget.Scrollable({
+            hscroll: "never",
+            vscroll: "automatic",
+            child: Widget.Box({
+                vertical: true,
+                setup: self => self.hook(wifi, () => self.children =
+                    wifi.access_points
+                        .filter((ap, index, self) =>
+                            index === self.findIndex(elem => (elem.ssid === ap.ssid)))
+                        .map(ap => Widget.Button({
+                            on_clicked: () => {
+                                if (dependencies("nmcli"))
+                                    Utils.execAsync(`nmcli device wifi connect ${ap.bssid}`)
+                            },
+                            child: Widget.Box({
+                                children: [
+                                    Widget.Icon(ap.iconName),
+                                    Widget.Label(ap.ssid || ""),
+                                    Widget.Icon({
+                                        icon: icons.ui.tick,
+                                        hexpand: true,
+                                        hpack: "end",
+                                        setup: self => Utils.idle(() => {
+                                            if (!self.is_destroyed)
+                                                self.visible = ap.active
+                                        }),
                                     }),
-                                }),
-                            ],
-                        }),
-                    })),
-            ),
+                                ],
+                            }),
+                        })),
+                ),
+            }),
         }),
     ],
 })
