@@ -34,6 +34,7 @@ export const WifiSelection = () => Menu({
         Widget.Scrollable({
             hscroll: "never",
             vscroll: "automatic",
+            setup: self => self.set_size_request(-1, 300),
             child: Widget.Box({
                 vertical: true,
                 setup: self => self.hook(wifi, () => self.children =
