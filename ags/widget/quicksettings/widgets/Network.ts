@@ -41,6 +41,7 @@ export const WifiSelection = () => Menu({
                     wifi.access_points
                         .filter((ap, index, self) =>
                             index === self.findIndex(elem => (elem.ssid === ap.ssid)))
+                        .sort((x, y) => y.strength - x.strength)
                         .map(ap => Widget.Button({
                             on_clicked: () => {
                                 if (dependencies("nmcli"))
