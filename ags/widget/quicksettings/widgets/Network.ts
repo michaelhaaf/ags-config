@@ -16,7 +16,7 @@ export const NetworkToggle = () => ArrowToggleButton({
     },
 })
 
-export const WifiSelection = () => Menu({
+export const NetworkSelection = () => Menu({
     name: "network",
     icon: wifi.bind("icon_name"),
     title: "Wifi Selection",
