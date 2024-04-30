@@ -53,7 +53,7 @@ export const NetworkSelection = () => Menu({
                         .map(ap => Widget.Button({
                             on_clicked: () => {
                                 if (dependencies("nmcli"))
-                                    Utils.execAsync(`nmcli device network.wifi connect ${ap.bssid}`)
+                                    Utils.execAsync(`nmcli device wifi connect ${ap.bssid}`)
                             },
                             child: Widget.Box({
                                 children: [
