@@ -1,11 +1,11 @@
 import PanelButton from "../PanelButton"
 import icons from "lib/icons"
 import asusctl from "service/asusctl"
+import { NetworkIndicator } from "widget/quicksettings/widgets/Network"
 
 const notifications = await Service.import("notifications")
 const bluetooth = await Service.import("bluetooth")
 const audio = await Service.import("audio")
-const network = await Service.import("network")
 const powerprof = await Service.import("powerprofiles")
 
 const ProfileIndicator = () => {
@@ -65,12 +65,6 @@ const BluetoothIndicator = () => Widget.Overlay({
         label: bluetooth.bind("connected_devices").as(c => `${c.length}`),
         visible: bluetooth.bind("connected_devices").as(c => c.length > 0),
     }),
-})
-
-const NetworkIndicator = () => Widget.Icon().hook(network, self => {
-    const icon = network[network.primary || "wifi"]?.icon_name
-    self.icon = icon || ""
-    self.visible = !!icon
 })
 
 const AudioIndicator = () => Widget.Icon()
