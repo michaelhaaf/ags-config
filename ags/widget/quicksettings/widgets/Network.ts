@@ -2,31 +2,39 @@ import { Menu, ArrowToggleButton } from "../ToggleButton"
 import icons from "lib/icons.js"
 import { dependencies, sh } from "lib/utils"
 import options from "options"
-const { wifi } = await Service.import("network")
+const network = await Service.import("network")
 
-export const NetworkToggle = () => ArrowToggleButton({
+const NetworkToggleButton = () => ArrowToggleButton({
     name: "network",
-    icon: wifi.bind("icon_name"),
-    label: wifi.bind("ssid").as(ssid => ssid || "Not Connected"),
-    connection: [wifi, () => wifi.enabled],
-    deactivate: () => wifi.enabled = false,
+    icon: network[network.primary]?.icon_name || "",
+    label: network[network.primary]?.bind("ssid")?.as(ssid => ssid || "Ethernet"),
+    connection: [network.wifi, () => network.wifi.enabled],
+    deactivate: () => network.wifi.enabled = false,
     activate: () => {
-        wifi.enabled = true
-        wifi.scan()
+        network.wifi.enabled = true
+        network.wifi.scan()
     },
 })
 
+export const NetworkIndicator = () => Widget.Icon().hook(network, self => {
+    const icon = network[network.primary]?.icon_name
+    self.icon = icon || ""
+    self.visible = !!icon
+})
+
+export const NetworkToggle = () => NetworkToggleButton()
+
 export const NetworkSelection = () => Menu({
     name: "network",
-    icon: wifi.bind("icon_name"),
-    title: "Wifi Selection",
+    icon: network.wifi.bind("icon_name"),
+    title: "Network Selection",
     content: [
         Widget.Button({
             on_clicked: () => sh(options.quicksettings.networkSettings.value),
             child: Widget.Box({
                 children: [
                     Widget.Icon(icons.ui.settings),
-                    Widget.Label("Network"),
+                    Widget.Label("Network Settings"),
                 ],
             }),
         }),
@@ -37,15 +45,15 @@ export const NetworkSelection = () => Menu({
             setup: self => self.set_size_request(-1, 300),
             child: Widget.Box({
                 vertical: true,
-                setup: self => self.hook(wifi, () => self.children =
-                    wifi.access_points
+                setup: self => self.hook(network.wifi, () => self.children =
+                    network.wifi.access_points
                         .filter((ap, index, self) =>
                             index === self.findIndex(elem => (elem.ssid === ap.ssid)))
                         .sort((x, y) => y.strength - x.strength)
                         .map(ap => Widget.Button({
                             on_clicked: () => {
                                 if (dependencies("nmcli"))
-                                    Utils.execAsync(`nmcli device wifi connect ${ap.bssid}`)
+                                    Utils.execAsync(`nmcli device network.wifi connect ${ap.bssid}`)
                             },
                             child: Widget.Box({
                                 children: [
