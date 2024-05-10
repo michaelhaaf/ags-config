@@ -1,123 +1,132 @@
 {
   pkgs,
   config,
-  lib,
   ...
-}: let
-  boxes = mkBoxes {
-    Alpine = {
-      img = "docker.io/library/alpine:latest";
-      packages = "git neovim";
+}:
+with builtins; let
+  mkHome = box: ".local/share/distrobox/${box}";
+
+  boxes = {
+    fedora = {
+      home = mkHome "Fedora";
+      alias = "fedora";
+      img = "quay.io/fedora/fedora:rawhide";
     };
-    Fedora = {
-      packages = "nodejs npm poetry gcc mysql-devel python3-devel git neovim wl-clipboard";
-      img = "registry.fedoraproject.org/fedora-toolbox:rawhide";
-      nixPackages = [
-        (pkgs.writeShellScriptBin "pr" "poetry run $@")
-        (pkgs.writeShellScriptBin "prpm" "poetry run python manage.py $@")
-      ];
+    ubuntu = {
+      home = mkHome "Ubuntu";
+      alias = "ubuntu";
+      img = "docker.io/library/ubuntu:22.04";
     };
-    Arch = {
+    arch = {
+      home = mkHome "Arch";
+      alias = "arch";
       img = "docker.io/library/archlinux:latest";
-      packages = "base-devel git neovim wl-clipboard";
-      nixPackages = [
-        (pkgs.writeShellScriptBin "yay" ''
-          if [[ ! -f /bin/yay ]]; then
-            tmpdir="$HOME/.yay-bin"
-            if [[ -d "$tmpdir" ]]; then sudo rm -r "$tmpdir"; fi
-            git clone https://aur.archlinux.org/yay-bin.git "$tmpdir"
-            cd "$tmpdir"
-            makepkg -si
-            sudo rm -r "$tmpdir"
-          fi
-          /bin/yay $@
-        '')
-      ];
+    };
+    alpine = {
+      home = mkHome "Alpine";
+      alias = "alpine";
+      img = "quay.io/toolbx-images/alpine-toolbox:latest";
     };
   };
 
-  symlinks = [
-    ".bashrc"
-    ".zshrc"
-    ".config/nushell"
-    ".config/nvim"
-    ".config/nix"
-    ".config/starship.toml"
-  ];
+  # TODO: custom OCI image
+  yay = pkgs.writeShellScriptBin "yay" ''
+    if [[ ! -f "/bin/yay" ]]; then
+      sudo pacman -S --needed git base-devel
+      git clone https://aur.archlinux.org/yay-bin.git $HOME/yay-bin
+      cd $HOME/yay-bin
+      makepkg -si
+    fi
 
-  mkBoxes = let
-    mkBox = name: {
-      img,
-      home ? ".local/share/distrobox/${name}",
-      packages ? "git neovim",
-      init ? "true",
-      flags ? "",
-      path ? [],
-      nixPackages ? [],
-    }: {
-      inherit home img flags packages;
-      init = pkgs.writeShellScript "init" init;
-      alias = lib.strings.toLower name;
-      path =
-        path
-        ++ config.packages.cli
-        ++ [
-          "/bin"
-          "/sbin"
-          "/usr/bin"
-          "/usr/sbin"
-          "/usr/local/bin"
-          "$HOME/.local/bin"
-        ]
-        ++ (map (p: "${p}/bin") nixPackages);
-    };
-  in
-    attrs:
-      builtins.attrValues
-      (builtins.mapAttrs mkBox attrs);
+    /bin/yay $@
+  '';
 
   mkBoxLinks = box: let
     ln = config.lib.file.mkOutOfStoreSymlink;
+    links = [
+      ".bashrc"
+      ".zshrc"
+      ".config/nushell"
+      ".config/nvim"
+      ".config/nix"
+      ".config/starship.toml"
+      ".local/"
+      ".cache/"
+    ];
   in
-    builtins.listToAttrs (map (link: {
+    listToAttrs (map (link: {
         name = "${box.home}/${link}";
         value = {
           source = ln "${config.home.homeDirectory}/${link}";
         };
       })
-      symlinks);
+      links);
 
-  mkBoxAlias = box: let
+  mkBoxAlias = let
     db = "${pkgs.distrobox}/bin/distrobox";
-    exec = pkgs.writeShellScript "db-exec" ''
-      data_dirs=()
-      IFS=':'
-      read -ra segments <<<"$XDG_DATA_DIRS"
-      for segment in "''${segments[@]}"; do
-        if [[ $segment != *"/nix"* ]]; then
-          data_dirs+=("$segment")
+  in
+    box:
+      pkgs.writeShellScriptBin box.alias ''
+        if ! ${db} list | grep ${box.alias}; then
+            ${db} create \
+              --name "${box.alias}" \
+              --home ${config.home.homeDirectory}/${box.home} \
+              --image "${box.img}"
         fi
       done
 
-      export XDG_DATA_DIRS="''${data_dirs[*]}"
-      export PATH="${builtins.concatStringsSep ":" box.path}"
-      ${pkgs.nushell}/bin/nu
-    '';
-  in
-    pkgs.writeShellScriptBin box.alias ''
-      if ! ${db} list | grep ${box.alias}; then
-         ${db} create ${box.flags} \
-           --pull \
-           --yes \
-           --name "${box.alias}" \
-           --home "${config.home.homeDirectory}/${box.home}" \
-           --image "${box.img}" \
-           --init-hooks "${box.init}" \
-           --additional-packages "${box.packages}"
-      fi
-      ${db} enter ${box.alias} -- ${exec}
-    '';
+        ${db} enter ${box.alias}
+      '';
+
+  path = [
+    "/bin"
+    "/sbin"
+    "/usr/bin"
+    "/usr/sbin"
+    "/usr/local/bin"
+    "${pkgs.nix}/bin"
+    "${pkgs.nushell}/bin"
+    "${pkgs.zsh}/bin"
+    "${yay}/bin"
+  ];
+
+  shPath =
+    path
+    ++ [
+      "$HOME/.local/bin"
+    ];
+
+  nuPath =
+    path
+    ++ [
+      "$\"($env.HOME)/.local/bin\""
+    ];
 in {
-  home.packages = [pkgs.distrobox] ++ (map mkBoxAlias boxes);
-  home.file = builtins.foldl' (acc: x: acc // x) {} (map mkBoxLinks boxes);
+  home.packages = let
+    aliases = mapAttrs (name: value: mkBoxAlias value) boxes;
+  in
+    (attrValues aliases) ++ [pkgs.distrobox];
+
+  home.file = let
+    links = mapAttrs (name: value: mkBoxLinks value) boxes;
+  in
+    foldl' (x: y: x // y) {} (attrValues links);
+
+  programs.bash.initExtra = ''
+    if [[ -f "/run/.containerenv" ]]; then
+      export PATH="${concatStringsSep ":" shPath}"
+    fi
+  '';
+
+  programs.zsh.initExtra = ''
+    if [[ -f "/run/.containerenv" ]]; then
+      export PATH="${concatStringsSep ":" shPath}"
+    fi
+  '';
+
+  programs.nushell.extraConfig = ''
+    if ("/run/.containerenv" | path exists) {
+      $env.PATH = [${concatStringsSep " " nuPath}]
+    }
+  '';
 }
