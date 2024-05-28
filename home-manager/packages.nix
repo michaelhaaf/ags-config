@@ -1,51 +1,50 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
+  packagesType = with lib;
+    def:
+      mkOption {
+        type = types.listOf types.package;
+        default = def;
+      };
+in {
+  options.packages = with lib; let
+    linux = with pkgs; [
+      (mpv.override {scripts = [mpvScripts.mpris];})
+      spotify
+      transmission_4-gtk
+      gnome-secrets
+      # yabridge
+      # yabridgectl
+      # wine-staging
+      nodejs
+    ];
+    cli = with pkgs; [
+      bat
+      eza
+      fd
+      ripgrep
+      fzf
+      lazydocker
+      lazygit
+    ];
+  in {
+    linux = packagesType linux;
+    cli = packagesType cli;
+  };
+
   imports = [
     ./scripts/blocks.nix
     ./scripts/nx-switch.nix
     ./scripts/vault.nix
   ];
 
-  home.packages = with pkgs;
-  with gnome; [
-    # gui
-    # obsidian
-    (mpv.override {scripts = [mpvScripts.mpris];})
-    # libreoffice
-    spotify
-    # caprine-bin
-    # d-spy
-    # github-desktop
-    # gimp
-    transmission_4-gtk
-    # discord
-    # teams-for-linux
-    # icon-library
-    # dconf-editor
-    gnome-secrets
-
-    # langs
-    poetry
-    nodejs
-
-    # tools
-    # steam-run
-    bat
-    eza
-    fd
-    ripgrep
-    fzf
-    # libnotify
-    # killall
-    # zip
-    # unzip
-    # glib
-    lazydocker
-
-    # fun
-    # glow
-    # slides
-    # yabridge
-    # yabridgectl
-    # wine-staging
-  ];
+  config = {
+    home.packages = with config.packages; if pkgs.stdenv.isLinux
+      then cli ++ linux
+      else cli;
+  };
 }
