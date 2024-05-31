@@ -12,8 +12,8 @@ class Recorder extends Service {
         })
     }
 
-    #recordings = Utils.HOME + "/Videos/Screencasting"
-    #screenshots = Utils.HOME + "/Pictures/Screenshots"
+    #recordings = Utils.HOME + bash("xdg-user-dir VIDEOS")
+    #screenshots = Utils.HOME + bash("xdg-user-dir PICTURES") + "/screenshots"
     #file = ""
     #interval = 0
 
@@ -61,23 +61,14 @@ class Recorder extends Service {
         })
     }
 
-    async screenshot(full = false) {
-        if (!dependencies("slurp", "wayshot"))
+    async screenshot(mode = "output") {
+        if (!dependencies("slurp", "hyprshot"))
             return
 
         const file = `${this.#screenshots}/${now()}.png`
         Utils.ensureDirectory(this.#screenshots)
 
-        if (full) {
-            await sh(`wayshot -f ${file}`)
-        }
-        else {
-            const size = await sh("slurp")
-            if (!size)
-                return
-
-            await sh(`wayshot -f ${file} -s "${size}"`)
-        }
+        await sh(`hyprshot -f ${file} -m ${mode}`)
 
         bash(`wl-copy < ${file}`)
 
