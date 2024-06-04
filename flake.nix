@@ -4,6 +4,7 @@
   outputs = inputs @ {
     self,
     home-manager,
+    nix-darwin,
     nixpkgs,
     ...
   }: {
@@ -26,17 +27,33 @@
       };
     };
 
-    # macos hm config
-    homeConfigurations = {
-      "demeter" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-darwin;
-        extraSpecialArgs = {inherit inputs;};
+    # macos
+    darwinConfigurations = {
+      "macos" = nix-darwin.lib.darwinSystem {
         modules = [
-          ({pkgs, ...}: {
-            nix.package = pkgs.nix;
-            home.username = "demeter";
-            home.homeDirectory = "/Users/demeter";
-            imports = [./macos/home.nix];
+          ./macos/macos.nix
+          home-manager.darwinModules.home-manager
+          (let
+            username = "demeter";
+          in {
+            users.users.${username} = {
+              name = username;
+              home = "/Users/${username}";
+            };
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              extraSpecialArgs = {inherit inputs;};
+              users."${username}" = {
+                home.username = username;
+                home.homeDirectory = "/Users/${username}";
+                imports = [./macos/home.nix];
+              };
+            };
+            networking = {
+              hostName = "macos";
+              computerName = "macos";
+            };
           })
         ];
       };
@@ -48,6 +65,11 @@
 
     home-manager = {
       url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
