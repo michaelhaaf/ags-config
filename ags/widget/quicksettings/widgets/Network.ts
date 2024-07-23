@@ -22,6 +22,12 @@ export const NetworkIndicator = () => Widget.Icon().hook(network, self => {
     self.visible = !!icon
 })
 
+export const VPNIndicator = () => Widget.Icon().hook(network, self => {
+    const icon = network.vpn.icon_name
+    self.icon = icon || ""
+    self.visible = !!icon
+})
+
 export const NetworkToggle = () => NetworkToggleButton()
 
 export const NetworkSelection = () => Menu({
