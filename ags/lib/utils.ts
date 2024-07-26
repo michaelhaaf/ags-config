@@ -111,3 +111,24 @@ export function createSurfaceFromWidget(widget: Gtk.Widget) {
     widget.draw(cr)
     return surface
 }
+
+
+/**
+ * For debugging, see https://stackoverflow.com/a/63911635
+ */
+export const convertMapToObjDeeply = o => {
+  const recurseOnEntries = a => Object.fromEntries(
+    a.map(([k, v]) => [k, convertMapToObjDeeply(v)])
+  );
+  if (o instanceof Map) {
+    return recurseOnEntries([...o]);
+  }
+  else if (Array.isArray(o)) {
+    return o.map(convertMapToObjDeeply);
+  }
+  else if (typeof o === "object" && o !== null) {
+    return recurseOnEntries(Object.entries(o));
+  }
+  
+  return o;
+};

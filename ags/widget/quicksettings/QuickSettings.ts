@@ -4,6 +4,7 @@ import { Header } from "./widgets/Header"
 import { Volume, Microphone, SinkSelector, AppMixer } from "./widgets/Volume"
 import { Brightness } from "./widgets/Brightness"
 import { NetworkToggle, NetworkSelection } from "./widgets/Network"
+import { TailscaleToggle, TailscaleSelection } from "./widgets/Network"
 import { BluetoothToggle, BluetoothDevices } from "./widgets/Bluetooth"
 import { DND } from "./widgets/DND"
 import { DarkModeToggle } from "./widgets/DarkMode"
@@ -52,14 +53,17 @@ const Settings = () => Widget.Box({
             ],
         }),
         Row(
-            [NetworkToggle, BluetoothToggle],
-            [NetworkSelection, BluetoothDevices],
+            [NetworkToggle, TailscaleToggle],
+            [NetworkSelection, TailscaleSelection],
         ),
         Row(
             [ProfileToggle, DarkModeToggle],
             [ProfileSelector],
         ),
-        Row([MicMute, DND]),
+        Row(
+            [BluetoothToggle, MicMute],
+            [BluetoothDevices],
+        ),
         Widget.Box({
             visible: media.as(l => l.length > 0),
             child: Media(),

@@ -1,7 +1,8 @@
 import { Menu, ArrowToggleButton } from "../ToggleButton"
 import icons from "lib/icons.js"
-import { dependencies, sh } from "lib/utils"
+import { dependencies, sh, convertMapToObjDeeply } from "lib/utils"
 import options from "options"
+import { tailscale } from "service/tailscale"
 const network = await Service.import("network")
 
 const NetworkToggleButton = () => ArrowToggleButton({
@@ -16,23 +17,38 @@ const NetworkToggleButton = () => ArrowToggleButton({
     },
 })
 
+const TailscaleToggleButton = () => ArrowToggleButton({
+    name: "tailscale",
+    icon: tailscale.icon_name || "",
+    label: "Tailscale",
+    connection: [tailscale, () => tailscale.enabled],
+    deactivate: () => {
+        tailscale.enabled = false;
+    },
+    activate: () => {
+        tailscale.enabled = true;
+    },
+})
+
 export const NetworkIndicator = () => Widget.Icon().hook(network, self => {
     const icon = network[network.primary]?.icon_name
     self.icon = icon || ""
     self.visible = !!icon
 })
 
-export const VPNIndicator = () => Widget.Icon().hook(network, self => {
-    const icon = network.vpn.icon_name
+export const TailscaleIndicator = () => Widget.Icon().hook(tailscale, self => {
+    const icon = tailscale.icon_name
     self.icon = icon || ""
     self.visible = !!icon
 })
 
 export const NetworkToggle = () => NetworkToggleButton()
 
+export const TailscaleToggle = () => TailscaleToggleButton()
+
 export const NetworkSelection = () => Menu({
     name: "network",
-    icon: network.wifi.bind("icon_name"),
+    icon: network[network.primary]?.bind("icon_name"),
     title: "Network Selection",
     content: [
         Widget.Button({
@@ -72,6 +88,54 @@ export const NetworkSelection = () => Menu({
                                         setup: self => Utils.idle(() => {
                                             if (!self.is_destroyed)
                                                 self.visible = ap.active
+                                        }),
+                                    }),
+                                ],
+                            }),
+                        })),
+                ),
+            }),
+        }),
+    ],
+})
+
+export const TailscaleSelection = () => Menu({
+    name: "tailscale",
+    icon: tailscale.icon_name,
+    title: "Exit Node Selection",
+    content: [
+        Widget.Button({
+            on_clicked: () => tailscale.toggleExitNode(),
+            child: Widget.Box({
+                children: [
+                    Widget.Icon(icons.tailscale.enabled_with_exit_node),
+                    Widget.Icon(icons.tailscale.enabled_sans_exit_node),
+                    Widget.Separator(),
+                    Widget.Label("Toggle exit node on/off"),
+                ],
+            }),
+        }),
+        Widget.Separator(),
+        Widget.Scrollable({
+            hscroll: "never",
+            vscroll: "automatic",
+            setup: self => self.set_size_request(-1, 300),
+            child: Widget.Box({
+                vertical: true,
+                setup: self => self.hook(tailscale, () => self.children =
+                    tailscale.exit_nodes
+                        .map(node => Widget.Button({
+                            on_clicked: () => tailscale.selected_node = node,
+                            child: Widget.Box({
+                                children: [
+                                    Widget.Label(`${node.country} (${node.hostname})` || ""),
+                                    Widget.Icon({
+                                        icon: icons.ui.tick,
+                                        hexpand: true,
+                                        hpack: "end",
+                                        setup: self => Utils.idle(() => {
+                                            if (!self.is_destroyed)
+                                                self.visible = node.status === "selected"
                                         }),
                                     }),
                                 ],

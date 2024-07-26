@@ -2,7 +2,7 @@ import PanelButton from "../PanelButton"
 import icons from "lib/icons"
 import asusctl from "service/asusctl"
 import { NetworkIndicator } from "widget/quicksettings/widgets/Network"
-import { VPNIndicator } from "widget/quicksettings/widgets/Network"
+import { TailscaleIndicator } from "widget/quicksettings/widgets/Network"
 
 const notifications = await Service.import("notifications")
 const bluetooth = await Service.import("bluetooth")
@@ -87,7 +87,7 @@ export default () => PanelButton({
         DNDIndicator(),
         BluetoothIndicator(),
         NetworkIndicator(),
-        VPNIndicator(),
+        TailscaleIndicator(),
         AudioIndicator(),
         MicrophoneIndicator(),
     ]),

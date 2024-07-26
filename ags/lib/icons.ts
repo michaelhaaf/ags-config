@@ -147,4 +147,9 @@ export default {
         dark: "dark-mode-symbolic",
         light: "light-mode-symbolic",
     },
+    tailscale: {
+        disabled: "network-vpn-disabled-symbolic",
+        enabled_sans_exit_node: "network-vpn-disconnected-symbolic",
+        enabled_with_exit_node: "network-vpn-symbolic",
+    },
 }
