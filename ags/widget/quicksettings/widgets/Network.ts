@@ -101,17 +101,15 @@ export const NetworkSelection = () => Menu({
 
 export const TailscaleSelection = () => Menu({
     name: "tailscale",
-    icon: tailscale.icon_name,
+    icon: "",
     title: "Exit Node Selection",
     content: [
         Widget.Button({
-            on_clicked: () => tailscale.toggleExitNode(),
+            on_clicked: () => tailscale.selected_node = undefined,
             child: Widget.Box({
                 children: [
-                    Widget.Icon(icons.tailscale.enabled_with_exit_node),
                     Widget.Icon(icons.tailscale.enabled_sans_exit_node),
-                    Widget.Separator(),
-                    Widget.Label("Toggle exit node on/off"),
+                    Widget.Label("Turn exit node off"),
                 ],
             }),
         }),
@@ -128,6 +126,7 @@ export const TailscaleSelection = () => Menu({
                             on_clicked: () => tailscale.selected_node = node,
                             child: Widget.Box({
                                 children: [
+                                    Widget.Icon(icons.tailscale.enabled_with_exit_node),
                                     Widget.Label(`${node.country} (${node.hostname})` || ""),
                                     Widget.Icon({
                                         icon: icons.ui.tick,

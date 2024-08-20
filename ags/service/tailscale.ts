@@ -37,7 +37,6 @@ class Tailscale extends Service {
     }
 
     set selected_node(node) {
-        console.log("did the button work?")
         const new_node = node?.ip || ""
         sh(`tailscale set --exit-node="${new_node}"`).then(() => {
             this.#selected_node = node
@@ -59,16 +58,6 @@ class Tailscale extends Service {
                 this.#enabled = value
                 this.changed("enabled")
             })
-        }
-    }
-
-    toggleExitNode() {
-        if (this.#selected_node) {
-            this.#selected_node = undefined
-            console.log("Trying to set to undefined...")
-        } else {
-            this.#selected_node = this.#find_selected_node()
-            console.log("Trying to set to something else...")
         }
     }
 
