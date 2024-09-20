@@ -63,17 +63,21 @@ const AppItem = (address: string) => {
     )
 }
 
-function sortItems<T extends { attribute: { address: string } }>(arr: T[]) {
-    return arr.sort(({ attribute: a }, { attribute: b }) => {
-        const aclient = hyprland.getClient(a.address)!
-        const bclient = hyprland.getClient(b.address)!
-        return aclient.workspace.id - bclient.workspace.id
-    })
+function sortItems<T extends { attribute: { address: string } }>(arr: T[], monitor: number) {
+    return arr
+        .sort(({ attribute: a }, { attribute: b }) => {
+            const aclient = hyprland.getClient(a.address)!
+            const bclient = hyprland.getClient(b.address)!
+            return aclient.workspace.id - bclient.workspace.id
+        })
+        .filter(({ attribute: i }) => {
+            return hyprland.getClient(i.address)?.monitor === monitor
+        })
 }
 
 export default (monitor: number) => Widget.Box({
     class_name: "taskbar",
-    children: sortItems(hyprland.clients.map(c => AppItem(c.address))),
+    children: sortItems(hyprland.clients.map(c => AppItem(c.address)), monitor),
     setup: w => w
         .hook(hyprland, (w, address?: string) => {
             if (typeof address === "string")
@@ -81,10 +85,10 @@ export default (monitor: number) => Widget.Box({
         }, "client-removed")
         .hook(hyprland, (w, address?: string) => {
             if (typeof address === "string")
-                w.children = sortItems([...w.children, AppItem(address)])
+                w.children = sortItems([...w.children, AppItem(address)], monitor)
         }, "client-added")
         .hook(hyprland, (w, event?: string) => {
             if (event === "movewindow")
-                w.children = sortItems(w.children)
+                w.children = sortItems(hyprland.clients.map(c => AppItem(c.address)), monitor)
         }, "event"),
 })
