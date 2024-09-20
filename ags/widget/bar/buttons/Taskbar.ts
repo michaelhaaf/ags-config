@@ -71,7 +71,7 @@ function sortItems<T extends { attribute: { address: string } }>(arr: T[]) {
     })
 }
 
-export default () => Widget.Box({
+export default (monitor: number) => Widget.Box({
     class_name: "taskbar",
     children: sortItems(hyprland.clients.map(c => AppItem(c.address))),
     setup: w => w
