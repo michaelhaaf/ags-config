@@ -73,6 +73,9 @@ function sortItems<T extends { attribute: { address: string } }>(arr: T[], monit
         .filter(({ attribute: i }) => {
             return hyprland.getClient(i.address)?.monitor === monitor
         })
+        .filter(({ attribute: i }) => {
+            return hyprland.getClient(i.address)?.workspace.id >= 0
+        })
 }
 
 export default (monitor: number) => Widget.Box({
