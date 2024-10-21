@@ -33,7 +33,7 @@ const AppItem = (address: string) => {
         child: Widget.Icon({
             size: iconSize.bind(),
             icon: monochrome.bind().as(m => icon(
-                (app?.icon_name || client.class) + (m ? "-symbolic" : ""),
+                (client.class || app?.icon_name) + (m ? "-symbolic" : ""),
                 icons.fallback.executable + (m ? "-symbolic" : ""),
             )),
         }),

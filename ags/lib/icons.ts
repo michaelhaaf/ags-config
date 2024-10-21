@@ -13,7 +13,9 @@ export const substitutes = {
     "foot-symbolic": "terminal-symbolic",
     "terminal-distrobox-icon": "terminal",
     "Brave-browser-symbolic": "brave-browser-symbolic",
-    "firefox-nightly": "firefox-developer-edition",
+    "firefox-symbolic": "org.mozilla.firefox",
+    "org.mozilla.firefox": "org.mozilla.firefox",
+    "firefox-work": "firefox-developer-edition",
     "firefox-nightly-symbolic": "firefox-developer-edition-symbolic",
 }
 
