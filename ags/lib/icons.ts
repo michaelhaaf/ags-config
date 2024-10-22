@@ -17,6 +17,11 @@ export const substitutes = {
     "org.mozilla.firefox": "org.mozilla.firefox",
     "firefox-work": "firefox-developer-edition",
     "firefox-nightly-symbolic": "firefox-developer-edition-symbolic",
+    "Brave-browser": "teams",
+    "Signal": "signal-desktop",
+    "vesktop": "discord",
+    "wine": "wine-launcher",
+    "camera-web-analog-usb": "camera-web-symbolic",
 }
 
 export default {
